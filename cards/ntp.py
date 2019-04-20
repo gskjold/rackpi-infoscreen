@@ -6,5 +6,22 @@ class CardNtp:
         self.cmd = "ntptrace | awk '{printf \"%d %f %f %s\", $3, $5, $8, $10}'"
 
     def lines(self):
-        out = subprocess.check_output(self.cmd, shell = True ).split()
-        return {"Stratum {} {}".format(out[0], out[3]),"Offset: {}".format(out[1]),"Sync dist: {}".format(out[2])}
+        res = subprocess.check_output(self.cmd, shell = True ).decode("utf-8")
+        out = str(res).split()
+        if len(out) > 0:
+            stratum = int(out[0])
+        else:
+            stratum = -1
+        if len(out) > 1:
+            offset = out[1]
+        else:
+            offset = -1
+        if len(out) > 2:
+            syncdist = out[2]
+        else:
+            syncdist = -1
+        if len(out) > 3:
+            refid = out[3]
+        else:
+            refid = ""
+        return ["NTP Stratum %d %s" % (stratum, refid),"Offset: {}".format(offset),"Sync dist: {}".format(syncdist)]

@@ -97,13 +97,15 @@ while run:
             next_page = True
         menu_timer = menu_timer+1
     elif next_page:
-        menu_timer = 0
         menu_state += 1
-        page = pages[menu_state]
-        if not page:
+        if len(pages) > menu_state:
+            page = pages[menu_state]
+        else:
             menu_state = 0
             page = pages[0]
         next_page = False
+    else:
+        menu_timer = 0
 
     # Draw a black filled box to clear the image.
     draw.rectangle((0,0,width,height), outline=0, fill=0)

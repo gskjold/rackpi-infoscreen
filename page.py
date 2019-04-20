@@ -8,13 +8,13 @@ class Page:
         start = self.idx
         end = start+num
 
-        ret = {}
+        ret = []
         for mod in self.modules:
             ret.extend(mod.lines())
 
-        if not ret[end]:
-            self.idx = 0
-        else:
+        if len(ret) > end:
             self.idx += 1
+        else:
+            self.idx = 0
 
         return ret[start:end]
