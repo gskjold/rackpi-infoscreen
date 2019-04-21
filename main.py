@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import time
-import Adafruit_SSD1306
+from luma.core.interface.serial import i2c, spi
+from luma.core.render import canvas
+from luma.oled.device import ssd1306
 import RPi.GPIO as GPIO
 import subprocess
 
@@ -26,37 +28,15 @@ SHUTDOWN_TIMEOUT = 8
 do_reboot = 0
 do_shutdown = 0
 
-# 128x32 display with hardware I2C:
-disp = Adafruit_SSD1306.SSD1306_128_32(rst=None)
+serial = i2c(port=1, address=0x3C)
+device = ssd1306(serial, width=config.width, height=config.height, rotate=config.rotate)
 
-# Initialize library.
-disp.begin()
-
-# Clear display.
-disp.clear()
-disp.display()
-
-# Create blank image for drawing.
-# Make sure to create image with mode '1' for 1-bit color.
-width = disp.width
-height = disp.height
-image = Image.new('1', (width, height))
-
-# Get drawing object to draw on image.
-draw = ImageDraw.Draw(image)
-
-# Draw a black filled box to clear the image.
-draw.rectangle((0,0,width,height), outline=0, fill=0)
-
-# Draw some shapes.
-# First define some constants to allow easy resizing of shapes.
+width = config.width
+height = config.height
 padding = -2
 top = padding
 bottom = height-padding
-# Move left to right keeping track of the current x position for drawing shapes.
 x = 2
-
-# Load default font.
 font = ImageFont.load_default()
 
 # Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
@@ -66,12 +46,11 @@ font = ImageFont.load_default()
 GPIO.output(config.led_pin, GPIO.HIGH)
 
 # Startup Info
-draw.rectangle((0,0,width,height), outline=0, fill=0)
-draw.text((x, top),    "--------------------", font=font, fill=255)
-draw.text((x, top+12), " Infoscreen Started ", font=font, fill=255)
-draw.text((x, top+24), "--------------------", font=font, fill=255)
-disp.image(image)
-disp.display()
+with canvas(device) as draw:
+    draw.rectangle((0,0,width,height), outline=0, fill=0)
+    draw.text((x, top),    "--------------------", font=font, fill=255)
+    draw.text((x, top+12), " Infoscreen Started ", font=font, fill=255)
+    draw.text((x, top+24), "--------------------", font=font, fill=255)
 
 time.sleep(5)
 
@@ -107,41 +86,35 @@ while run:
     else:
         menu_timer = 0
 
-    # Draw a black filled box to clear the image.
-    draw.rectangle((0,0,width,height), outline=0, fill=0)
-
     if menu_state < 90:
         ofs = 0
-        for line in page.lines(3):
-            draw.text((x, top+ofs), line, font=font, fill=255)
-            ofs = ofs+12
+        with canvas(device) as draw:
+            draw.rectangle((0,0,width,height), outline=0, fill=0)
+            for line in page.lines(3):
+                draw.text((x, top+ofs), line, font=font, fill=255)
+                ofs = ofs+12
     elif menu_state == 98:
-        if GPIO.input(config.btn_pin) == 1:
-            do_reboot = 1
-            draw.text((x, top+12), "Performing Reboot...", font=font, fill=255)
-            disp.image(image)
-            disp.display()
-            time.sleep(3)
-            draw.rectangle((0,0,width,height), outline=0, fill=0)
-        else:
-            draw.text((x, top),    ".......Reboot......."     , font=font, fill=255)
-            draw.text((x, top+12), "   Release Button   "   , font=font, fill=255)
-            draw.text((x, top+24), "      To Reboot     "    , font=font, fill=255)
+        with canvas(device) as draw:
+            if GPIO.input(config.btn_pin) == 1:
+                do_reboot = 1
+                draw.text((x, top+12), "Performing Reboot...", font=font, fill=255)
+                time.sleep(3)
+                draw.rectangle((0,0,width,height), outline=0, fill=0)
+            else:
+                draw.text((x, top),    ".......Reboot......."     , font=font, fill=255)
+                draw.text((x, top+12), "   Release Button   "   , font=font, fill=255)
+                draw.text((x, top+24), "      To Reboot     "    , font=font, fill=255)
     elif menu_state == 99:
-        if GPIO.input(config.btn_pin) == 1:
-            do_shutdown = 1
-            draw.text((x, top+12), "Shutting down.......", font=font, fill=255)
-            disp.image(image)
-            disp.display()
-            time.sleep(3)
-            draw.rectangle((0,0,width,height), outline=0, fill=0)
-        else:
-            draw.text((x, top),    "......Shutdown......"     , font=font, fill=255)
-            draw.text((x, top+12), "   Release Button   "   , font=font, fill=255)
-            draw.text((x, top+24), "    To Shutdown     "      , font=font, fill=255)
-
-    disp.image(image)
-    disp.display()
+        with canvas(device) as draw:
+            if GPIO.input(config.btn_pin) == 1:
+                do_shutdown = 1
+                draw.text((x, top+12), "Shutting down.......", font=font, fill=255)
+                time.sleep(3)
+                draw.rectangle((0,0,width,height), outline=0, fill=0)
+            else:
+                draw.text((x, top),    "......Shutdown......"     , font=font, fill=255)
+                draw.text((x, top+12), "   Release Button   "   , font=font, fill=255)
+                draw.text((x, top+24), "    To Shutdown     "      , font=font, fill=255)
 
     if do_reboot == 1:
         cmd = "sudo reboot now"

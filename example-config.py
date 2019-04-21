@@ -6,6 +6,10 @@ from cards.mem import CardMem
 
 class Config:
     def __init__(self):
+        self.width = 128
+        self.height = 32
+        self.rotate = 2
+
         self.pages = []
         self.pages.append(Page(CardHostname(), CardUptime(), CardCpu(), CardMem()))
 
