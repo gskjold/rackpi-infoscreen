@@ -24,4 +24,4 @@ class CardNtp:
             refid = out[3]
         else:
             refid = ""
-        return ["NTP Stratum %d %s" % (stratum, refid),"Offset: {}".format(offset),"Sync dist: {}".format(syncdist)]
+        return ["NTP Stratum %d %s" % (stratum, refid)," offset: {}".format(offset)," sync dist: {}".format(syncdist)]

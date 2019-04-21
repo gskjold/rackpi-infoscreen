@@ -8,4 +8,4 @@ class CardRabbitMQ:
 
     def lines(self):
         r = requests.get(self.url, auth=(self.username, self.password))
-        return {"Message rate: {}".format(r.json())}
+        return ["Message rate: {}".format(r.json())]

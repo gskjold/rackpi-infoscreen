@@ -20,4 +20,4 @@ class CardUptime:
 
     def lines(self):
         UPTIME_S = subprocess.check_output(self.cmd, shell = True )
-        return {"up {}".format(self.pretty_time_delta(UPTIME_S))}
+        return ["up {}".format(self.pretty_time_delta(UPTIME_S))]

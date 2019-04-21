@@ -7,4 +7,4 @@ class CardUnifi:
         self.mcol = self.mdb.stat_5minutes
 
     def lines(self):
-        return {"Clients: :d".format(self.mcol.find_one({"o":"site"}, sort=[("time", pymongo.DESCENDING)]))}
+        return ["Clients: :d".format(self.mcol.find_one({"o":"site"}, sort=[("time", pymongo.DESCENDING)]))]
