@@ -6,7 +6,7 @@ from cards.mem import CardMem
 
 class Config:
     def __init__(self):
-        self.pages = {}
+        self.pages = []
         self.pages.append(Page(CardHostname(), CardUptime(), CardCpu(), CardMem()))
 
         self.led_pin = 23
