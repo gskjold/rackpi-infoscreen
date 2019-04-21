@@ -3,7 +3,7 @@ import subprocess
 class CardDisk:
     def __init__(self, mount_point):
         self.mount_point = mount_point
-        self.cmd = "df {} -h --output=size,used,avail,pcent | tail -n1" % (mount_point)
+        self.cmd = "df {} -h --output=size,used,avail,pcent | tail -n1".format(mount_point)
 
     def lines(self):
         res = subprocess.check_output(self.cmd, shell = True ).decode("utf-8")
@@ -24,4 +24,4 @@ class CardDisk:
             pcent = out[3]
         else:
             pcent = "n/a"
-        return ["Mount: {} {}" % (self.mount_point, size), " usage: {} {}" % (used, pcent)]
+        return ["Mount: {} {}".format(self.mount_point, size), " usage: {} {}".format(used, pcent)]
